@@ -1,7 +1,14 @@
+import os
+
+from dotenv import load_dotenv
 from firstrade import account, order, symbols
 
-# Create a session
-ft_ss = account.FTSession(username="", password="", email = "", profile_path="")
+load_dotenv()
+username = os.getenv("FT_USERNAME")
+password = os.getenv("FT_PASSWORD")
+email = os.getenv("FT_EMAIL")
+
+ft_ss = account.FTSession(username=username, password=password, email=email, profile_path="")
 need_code = ft_ss.login()
 if need_code:
     code = input("Please enter the pin sent to your email/phone: ")
@@ -47,11 +54,11 @@ print(f"Fractional: {quote.is_fractional}")
 print(f"Company Name: {quote.company_name}")
 
 # Get positions and print them out for an account.
-positions = ft_accounts.get_positions(account=ft_accounts.account_numbers[1])
+positions = ft_accounts.get_positions(account=ft_accounts.account_numbers[0])
 print(positions)
 for item in positions["items"]:
     print(
-        f"Quantity {item["quantity"]} of security {item["symbol"]} held in account {ft_accounts.account_numbers[1]}"
+        f"Quantity {item["quantity"]} of security {item["symbol"]} held in account {ft_accounts.account_numbers[0]}"
     )
 
 # Get account history (past 200)
@@ -63,7 +70,6 @@ history = ft_accounts.get_account_history(
 
 for item in history["items"]:
     print(f"Transaction: {item["symbol"]} on {item["report_date"]} for {item["amount"]}.")
-
 
 # Create an order object.
 ft_order = order.Order(ft_ss)
@@ -92,14 +98,14 @@ else:
 # Cancel placed order
 # cancel = ft_accounts.cancel_order(order_conf['result']["order_id"])
 # if cancel["result"]["result"] == "success":
-    # print("Order cancelled successfully.")
+# print("Order cancelled successfully.")
 # print(cancel)
 
 # Check orders
 recent_orders = ft_accounts.get_orders(ft_accounts.account_numbers[0])
 print(recent_orders)
 
-#Get option dates
+# Get option dates
 option_first = symbols.OptionQuote(ft_ss, "INTC")
 for item in option_first.option_dates["items"]:
     print(f"Expiration Date: {item["exp_date"]} Days Left: {item["day_left"]} Expiration Type: {item["exp_type"]}")
@@ -112,7 +118,8 @@ print(option_quote)
 option_greeks = option_first.get_greek_options("INTC", option_first.option_dates["items"][0]["exp_date"])
 print(option_greeks)
 
-print(f"Placing dry option order for {option_quote["items"][0]["opt_symbol"]} with a price of {option_quote["items"][0]["ask"]}.")
+print(
+    f"Placing dry option order for {option_quote["items"][0]["opt_symbol"]} with a price of {option_quote["items"][0]["ask"]}.")
 print("Symbol readable ticker 'INTC'")
 
 # Place dry option order
